@@ -2,6 +2,7 @@
 extern crate log;
 
 mod commands;
+mod parsers;
 
 use ciri::args::{PackageSubCommands, ProjectSubCommands};
 use ciri::Cli;
@@ -15,7 +16,7 @@ fn main() {
     let cli = Cli::parse();
     match cli.subcommands.unwrap() {
         ciri::SubCommands::Package(cmd) => match cmd.subcommands.unwrap() {
-            PackageSubCommands::List(args) => package::list(args),
+            PackageSubCommands::List(args) => package::list(args).unwrap(),
             _ => todo!(),
         },
         ciri::SubCommands::Project(cmd) => match cmd.subcommands.unwrap() {

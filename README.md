@@ -1,3 +1,7 @@
-# CIRI - Configure, Install, Run, Improve
+# CIRI - Everything you need in one place
+A simple tool for combining other clis in one place
 
-Simple tool for combining other cli tools in one place
+- **C**onfigure ciri
+- **I**nstall software
+- **R**un your code
+- **I**mprove your workflow
