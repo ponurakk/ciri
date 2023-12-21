@@ -1,10 +1,15 @@
-use std::io::{self, Write};
+use std::io;
 use std::process::Command;
 
-use comfy_table::{modifiers, presets, Attribute, Cell, Color, Table};
-use crossterm::event::{Event, KeyCode};
-use crossterm::{cursor, terminal, ExecutableCommand};
+use crossterm::event::{DisableMouseCapture, EnableMouseCapture};
+use crossterm::execute;
+use crossterm::terminal::{
+    disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen,
+};
+use ratatui::backend::CrosstermBackend;
+use ratatui::Terminal;
 
+use crate::components::table::{run_app, App};
 use crate::parsers::package::pacman::packages;
 
 pub fn list(_args: ciri::args::package::List) -> Result<(), io::Error> {
@@ -12,111 +17,44 @@ pub fn list(_args: ciri::args::package::List) -> Result<(), io::Error> {
     let out = String::from_utf8(out.stdout).unwrap();
     let packages = packages(out.trim());
 
-    let rows: Vec<Vec<Cell>> = packages
+    enable_raw_mode()?;
+    let mut stdout = io::stdout();
+    execute!(stdout, EnterAlternateScreen, EnableMouseCapture)?;
+
+    let backend = CrosstermBackend::new(stdout);
+    let mut terminal = Terminal::new(backend)?;
+
+    let f_packages = packages
         .iter()
-        .map(|v| {
+        .enumerate()
+        .map(|(i, v)| {
             vec![
-                Cell::new(&v.name).add_attribute(Attribute::Dim),
-                Cell::new(&v.version),
-                Cell::new(&v.description),
-                Cell::new(&v.licenses.join(", ")).fg(Color::Green),
-                Cell::new(v.url.clone().unwrap_or("".to_owned())),
-                Cell::new(&v.installed_size),
-                Cell::new(&v.install_date),
+                i.to_string(),
+                v.name.clone(),
+                v.version.clone(),
+                v.description.clone(),
+                v.licenses.join(", ").clone(),
+                v.url.clone().unwrap_or("".to_owned()),
+                v.installed_size.clone(),
+                v.install_date.clone(),
             ]
         })
-        .collect();
+        .collect::<Vec<Vec<String>>>();
 
-    // Clear screen
-    let mut stdout = io::stdout();
-    stdout.execute(terminal::Clear(terminal::ClearType::All))?;
-    stdout.execute(cursor::Hide)?;
+    let mut app = App::new(f_packages);
+    app.state.select(Some(0));
+    let res = run_app(&mut terminal, app);
 
-    // Main loop for rendering and handling input
-    let mut offset = 0;
-    loop {
-        terminal::disable_raw_mode()?;
-        // Rendering the table with scrolling
-        render_table(&rows, offset)?;
-        terminal::enable_raw_mode()?;
+    disable_raw_mode()?;
+    execute!(
+        terminal.backend_mut(),
+        LeaveAlternateScreen,
+        DisableMouseCapture
+    )?;
+    terminal.show_cursor()?;
 
-        // Handle input
-        if let Some(event) = crossterm::event::read().ok() {
-            if let Event::Key(key_event) = event {
-                match key_event.code {
-                    KeyCode::Char('q') => break, // Exit on 'q'
-                    KeyCode::Down | KeyCode::Char('j') => {
-                        if offset < rows.len() - 1 {
-                            offset += 1;
-                        }
-                    }
-                    KeyCode::PageDown => {
-                        if offset < rows.len() - 10 {
-                            offset += 10;
-                        }
-                    }
-                    KeyCode::Up | KeyCode::Char('k') => {
-                        if offset >= 1 {
-                            offset -= 1;
-                        }
-                    }
-                    KeyCode::PageUp => {
-                        if offset >= 10 {
-                            offset -= 10;
-                        }
-                    }
-                    _ => {}
-                }
-            }
-        }
+    if let Err(err) = res {
+        println!("{:?}", err)
     }
-
-    // Cleanup
-    stdout.execute(cursor::Show)?;
-    terminal::disable_raw_mode()?;
-
-    Ok(())
-}
-
-fn render_table(rows: &Vec<Vec<Cell>>, offset: usize) -> Result<(), io::Error> {
-    let mut stdout = io::stdout();
-    stdout.execute(terminal::Clear(terminal::ClearType::All))?;
-
-    let mut table = Table::new();
-    let height = (terminal::size().unwrap().1 / 6) as usize;
-
-    table
-        .set_header(vec![
-            Cell::new("Package name").add_attribute(Attribute::Bold),
-            Cell::new("Version").add_attribute(Attribute::Bold),
-            Cell::new("Description").add_attribute(Attribute::Bold),
-            Cell::new("Licenses").add_attribute(Attribute::Bold),
-            Cell::new("URL").add_attribute(Attribute::Bold),
-            Cell::new("Installed Size").add_attribute(Attribute::Bold),
-            Cell::new("Install Date").add_attribute(Attribute::Bold),
-        ])
-        .set_content_arrangement(comfy_table::ContentArrangement::Dynamic)
-        .load_preset(presets::UTF8_FULL)
-        .apply_modifier(modifiers::UTF8_ROUND_CORNERS)
-        .apply_modifier(modifiers::UTF8_SOLID_INNER_BORDERS);
-
-    let mut new_offset = offset;
-
-    if offset + height >= rows.len() {
-        new_offset = offset - height;
-    }
-
-    let filtered_rows: Vec<Vec<Cell>> = rows
-        .get(0 + new_offset..=height + new_offset)
-        .unwrap()
-        .to_vec();
-    table.add_rows(filtered_rows);
-
-    stdout.flush()?;
-    println!("{}", table);
-    println!(
-        "q(quit), k(up), j(down), pgUp(up {0}), pgDown(down {0})",
-        height
-    );
     Ok(())
 }

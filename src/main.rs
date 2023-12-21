@@ -2,6 +2,7 @@
 extern crate log;
 
 mod commands;
+mod components;
 mod parsers;
 
 use ciri::args::{PackageSubCommands, ProjectSubCommands};
