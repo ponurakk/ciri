@@ -1,9 +1,49 @@
+use std::path::PathBuf;
+
 use clap::{Args, Subcommand};
 
 #[derive(Args)]
-pub struct Fresh {
-    /// Name of package to add
+pub struct New {
+    /// Name of project
     pub name: String,
+}
+
+#[derive(Args)]
+pub struct Build {
+    /// Specific file to build
+    pub name: Option<PathBuf>,
+
+    /// Path to sh script (it should mostly be autodetected)
+    #[arg(short, long)]
+    pub script: Option<PathBuf>,
+
+    /// Watch changes and restart
+    #[arg(long)]
+    pub watch: bool,
+}
+
+#[derive(Args)]
+pub struct Run {
+    /// Specific file to run
+    pub name: Option<PathBuf>,
+
+    /// Should build be run before executing
+    #[arg(long)]
+    pub build: bool,
+
+    /// Watch changes and restart
+    #[arg(long)]
+    pub watch: bool,
+}
+
+#[derive(Args)]
+pub struct Test {
+    /// Specific file to test
+    pub name: Option<PathBuf>,
+
+    /// Watch changes and restart
+    #[arg(long)]
+    pub watch: bool,
 }
 
 #[derive(Args)]
@@ -24,23 +64,25 @@ pub struct Update {
     pub name: Option<String>,
 }
 
-#[derive(Args)]
-pub struct List {
-    /// List only installed packages
-    #[arg(short, long)]
-    pub installed: bool,
-
-    /// List only *not*installed packages
-    #[arg(short, long)]
-    pub not_installed: bool,
-}
-
-// TODO: Detect package manager (pacman, apt, rpm, xbps, apk)
+// TODO: Detect package manager (cargo, npm*, pip, go, gradle, maven)
+// And check for watch utility. Native or third party
 #[derive(Subcommand)]
 pub enum PackageSubCommands {
-    /// Download fresh package info
-    #[clap(visible_alias = "f")]
-    Fresh(Fresh),
+    /// Build executable or execute build script
+    #[clap(visible_alias = "n")]
+    New(New),
+
+    /// Build executable or execute build script
+    #[clap(visible_alias = "b")]
+    Build(Build),
+
+    /// Run executable or execute run script
+    #[clap(visible_alias = "r")]
+    Run(Run),
+
+    /// Runs tests on project
+    #[clap(visible_alias = "t")]
+    Test(Test),
 
     /// Adds a dependency
     #[clap(visible_alias = "a")]
@@ -53,8 +95,4 @@ pub enum PackageSubCommands {
     /// Updates dependencies or just one
     #[clap(visible_alias = "up")]
     Update(Update),
-
-    /// List available packages
-    #[clap(visible_alias = "l")]
-    List(List),
 }

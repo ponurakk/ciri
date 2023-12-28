@@ -4,12 +4,12 @@ extern crate log;
 mod commands;
 mod components;
 mod parsers;
-mod validators;
 
 use std::io::{self, Write};
 
-use ciri::args::{PackageSubCommands, ProjectSubCommands};
-use ciri::Cli;
+use ciri::args::{PackageSubCommands, SystemSubCommands};
+use ciri::validators::package::find;
+use ciri::{Cli, Package, System};
 use clap::Parser;
 use crossterm::terminal::{disable_raw_mode, LeaveAlternateScreen};
 use flexi_logger::DeferredNow;
@@ -18,7 +18,7 @@ use miette::IntoDiagnostic;
 use nu_ansi_term::Color;
 
 use self::commands::package;
-use self::validators::package::find;
+use self::commands::system;
 
 fn my_format(
     write: &mut dyn Write,
@@ -69,31 +69,43 @@ fn main() -> miette::Result<()> {
 
     if let Some(subsommands) = cli.subcommands {
         match subsommands {
-            ciri::SubCommands::Package(cmd) => {
-                if let Some(subcommands) = cmd.subcommands {
-                    match subcommands {
-                        PackageSubCommands::List(args) => package::list(args)?,
-                        _ => todo!(),
-                    }
-                }
-            }
-            ciri::SubCommands::Project(cmd) => {
-                if let Some(subcommands) = cmd.subcommands {
-                    match subcommands {
-                        ProjectSubCommands::Build(args) => {
-                            info!("{:?} {:?} {}", args.name, args.script, args.watch);
-                            println!("Building...");
-                        }
+            ciri::SubCommands::System(cmd) => package_subcommand(cmd)?,
+            ciri::SubCommands::Package(cmd) => project_subcommand(cmd)?,
+        }
+    } else {
+        error!("No operation provided. (Use '-h' for help)");
+    }
 
-                        ProjectSubCommands::Run(args) => {
-                            info!("{:?} {:?} {}", args.name, args.build, args.watch);
-                            println!("Running...");
-                        }
+    Ok(())
+}
 
-                        _ => todo!(),
-                    }
-                }
+fn package_subcommand(cmd: System) -> miette::Result<()> {
+    if let Some(subcommands) = cmd.subcommands {
+        match subcommands {
+            SystemSubCommands::List(args) => system::list(args)?,
+            _ => todo!(),
+        }
+    } else {
+        error!("No operation provided. (Use '-h' for help)");
+    }
+
+    Ok(())
+}
+
+fn project_subcommand(cmd: Package) -> miette::Result<()> {
+    if let Some(subcommands) = cmd.subcommands {
+        match subcommands {
+            PackageSubCommands::Build(args) => {
+                info!("{:?} {:?} {}", args.name, args.script, args.watch);
+                println!("Building...");
             }
+
+            PackageSubCommands::Run(args) => {
+                info!("{:?} {:?} {}", args.name, args.build, args.watch);
+                println!("Running...");
+            }
+
+            _ => todo!(),
         }
     } else {
         error!("No operation provided. (Use '-h' for help)");

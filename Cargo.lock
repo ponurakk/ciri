@@ -198,6 +198,7 @@ dependencies = [
  "crossterm 0.27.0",
  "flexi_logger",
  "inquire",
+ "lazy_static",
  "log",
  "miette",
  "nom",

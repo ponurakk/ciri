@@ -1,5 +1,5 @@
 pub mod package;
-pub mod project;
+pub mod system;
 
 pub use package::PackageSubCommands;
-pub use project::ProjectSubCommands;
+pub use system::SystemSubCommands;

@@ -2,6 +2,11 @@
 name = "ciri"
 version = "0.1.0"
 edition = "2021"
+description = "Everything you need in one place"
+authors = ["p0unrakg@int.pl"]
+license = "Apache-2.0"
+homepage = "https://github.com/ponurakk/ciri"
+repository = "https://github.com/ponurakk/ciri"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -12,6 +17,7 @@ comfy-table = "7.1.0"
 crossterm = "0.27.0"
 flexi_logger = "0.27.3"
 inquire = "0.6.2"
+lazy_static = "1.4.0"
 log = "0.4.20"
 miette = { version = "5.10.0", features = ["fancy"] }
 nom = "7.1.3"

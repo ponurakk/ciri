@@ -131,7 +131,7 @@ pub fn draw<B: Backend>(terminal: &mut Terminal<B>, mut app: Table) -> io::Resul
         if let Event::Key(key) = event::read()? {
             match app.input.input_mode {
                 InputMode::Normal => match key.code {
-                    KeyCode::Char('e') => {
+                    KeyCode::Char('/') => {
                         app.input.input_mode = InputMode::Editing;
                     }
                     KeyCode::Char('q') => return Ok(()),

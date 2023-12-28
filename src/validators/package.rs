@@ -1,5 +1,3 @@
-use std::path::PathBuf;
-
 use miette::IntoDiagnostic;
 use ratatui::layout::{Constraint, Rect};
 use ratatui::style::{Style, Stylize};
@@ -8,13 +6,9 @@ use ratatui::widgets::Cell;
 
 use crate::components::table::{run_app, Table};
 use crate::components::{finalize_app, prepare_app};
+use crate::PACKAGE_MANAGERS;
 
 pub fn find() -> miette::Result<()> {
-    let packages = vec![
-        "bun", "cargo", "clang", "clang++", "composer", "dart", "deno", "flutter", "g++", "gcc",
-        "go", "gradle", "groovy", "java", "kotlin", "lua", "maven", "node", "npm", "perl", "php",
-        "pip", "pnpm", "python", "ruby", "scala", "swift", "yarn", "zig",
-    ];
     let app = Table::new(
         "Packages Health",
         Some(|size| Rect {
@@ -23,9 +17,9 @@ pub fn find() -> miette::Result<()> {
             ..Default::default()
         }),
         vec!["Name", "Status"],
-        packages
+        PACKAGE_MANAGERS
             .iter()
-            .flat_map(|name| vec![vec![name.to_string(), format_check(check(name).is_ok())]])
+            .flat_map(|name| vec![vec![name.to_string(), check(name)]])
             .collect::<Vec<Vec<String>>>(),
         vec![Constraint::Percentage(50), Constraint::Percentage(50)],
         Some(|cell, multiline_cell, j| {
@@ -56,12 +50,10 @@ pub fn find() -> miette::Result<()> {
     Ok(())
 }
 
-pub fn check(name: &str) -> miette::Result<PathBuf> {
-    which::which(name).into_diagnostic()
-}
+pub fn check(name: &str) -> String {
+    let pkg = which::which(name).into_diagnostic();
 
-pub fn format_check(bool: bool) -> String {
-    if bool {
+    if pkg.is_ok() {
         "🗹 ".to_string()
     } else {
         "🗷 ".to_string()

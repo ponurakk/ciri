@@ -1,12 +1,21 @@
+#[macro_use]
+extern crate log;
+
 pub mod args;
+pub mod components;
+pub mod validators;
+
+use std::collections::HashMap;
 
 use clap::{Args, ColorChoice, Parser, Subcommand};
+use lazy_static::lazy_static;
 
-use self::args::{PackageSubCommands, ProjectSubCommands};
+use self::args::{PackageSubCommands, SystemSubCommands};
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None, color = ColorChoice::Always)]
 pub struct Cli {
+    /// Check which tools are installed
     #[arg(long)]
     pub health: bool,
 
@@ -16,13 +25,19 @@ pub struct Cli {
 
 #[derive(Subcommand)]
 pub enum SubCommands {
-    /// Manage packages
-    #[clap(visible_alias = "pkg")]
-    Package(Package),
+    /// Manage system wide packages
+    #[command(visible_alias = "sys")]
+    System(System),
 
-    /// Manage projects
+    /// Manage your project packages
     #[clap(visible_alias = "pr")]
-    Project(Project),
+    Package(Package),
+}
+
+#[derive(Args)]
+pub struct System {
+    #[command(subcommand)]
+    pub subcommands: Option<SystemSubCommands>,
 }
 
 #[derive(Args)]
@@ -31,8 +46,10 @@ pub struct Package {
     pub subcommands: Option<PackageSubCommands>,
 }
 
-#[derive(Args)]
-pub struct Project {
-    #[command(subcommand)]
-    pub subcommands: Option<ProjectSubCommands>,
+lazy_static! {
+    static ref PACKAGE_MANAGERS: Vec<&'static str> = Vec::from([
+        "bun", "cargo", "clang", "clang++", "composer", "dart", "deno", "flutter", "g++", "gcc",
+        "go", "gradle", "groovy", "java", "kotlin", "lua", "maven", "node", "npm", "php", "pip",
+        "pnpm", "python", "ruby", "scala", "swift", "yarn", "zig",
+    ]);
 }

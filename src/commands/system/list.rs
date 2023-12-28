@@ -8,9 +8,9 @@ use ratatui::widgets::Cell;
 
 use crate::components::table::{run_app, Table};
 use crate::components::{finalize_app, prepare_app};
-use crate::parsers::package::pacman::packages;
+use crate::parsers::system::pacman::packages;
 
-pub fn list(_args: ciri::args::package::List) -> miette::Result<()> {
+pub fn list(_args: ciri::args::system::List) -> miette::Result<()> {
     let out = Command::new("pacman")
         .args(["-Q", "-i"])
         .output()
