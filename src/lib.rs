@@ -7,6 +7,9 @@ use self::args::{PackageSubCommands, ProjectSubCommands};
 #[derive(Parser)]
 #[command(author, version, about, long_about = None, color = ColorChoice::Always)]
 pub struct Cli {
+    #[arg(long)]
+    pub health: bool,
+
     #[command(subcommand)]
     pub subcommands: Option<SubCommands>,
 }

@@ -34,12 +34,10 @@ fn dependency_description(input: &str) -> Res<&str, (Option<String>, bool)> {
                 if v1 == Some(" ") {
                     desc = None;
                 }
+            } else if v2.is_empty() {
+                desc = None;
             } else {
-                if v2 == "" {
-                    desc = None;
-                } else {
-                    desc = Some(v2.to_owned());
-                }
+                desc = Some(v2.to_owned());
             }
 
             (desc, is_installed)
@@ -128,7 +126,7 @@ pub struct OptionalDependency {
 
 impl Package {
     fn add(&mut self, input: String, value: String) {
-        let value = if value == "None".to_string() {
+        let value = if value == "None" {
             None
         } else {
             Some(value.to_string())
@@ -143,7 +141,7 @@ impl Package {
             "Licenses" => {
                 self.licenses = value
                     .expect("Error in parsing licenses")
-                    .split(" ")
+                    .split(' ')
                     .map(ToOwned::to_owned)
                     .collect();
 
@@ -201,7 +199,7 @@ impl Package {
 pub fn package(input: &str) -> Package {
     let mut pkg: Package = Package::default();
 
-    input.split("\n").for_each(|v| {
+    input.split('\n').for_each(|v| {
         let current_field = field(v).unwrap();
         if current_field
             .1

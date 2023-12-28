@@ -1,28 +1,24 @@
-use std::io;
 use std::process::Command;
 
-use crossterm::event::{DisableMouseCapture, EnableMouseCapture};
-use crossterm::execute;
-use crossterm::terminal::{
-    disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen,
-};
-use ratatui::backend::CrosstermBackend;
-use ratatui::Terminal;
+use miette::{IntoDiagnostic, WrapErr};
+use ratatui::layout::Constraint;
+use ratatui::style::{Style, Stylize};
+use ratatui::text::Line;
+use ratatui::widgets::Cell;
 
-use crate::components::table::{run_app, App};
+use crate::components::table::{run_app, Table};
+use crate::components::{finalize_app, prepare_app};
 use crate::parsers::package::pacman::packages;
 
-pub fn list(_args: ciri::args::package::List) -> Result<(), io::Error> {
-    let out = Command::new("pacman").args(["-Q", "-i"]).output().unwrap();
+pub fn list(_args: ciri::args::package::List) -> miette::Result<()> {
+    let out = Command::new("pacman")
+        .args(["-Q", "-i"])
+        .output()
+        .into_diagnostic()
+        .wrap_err("Command pacman not found")?;
+
     let out = String::from_utf8(out.stdout).unwrap();
     let packages = packages(out.trim());
-
-    enable_raw_mode()?;
-    let mut stdout = io::stdout();
-    execute!(stdout, EnterAlternateScreen, EnableMouseCapture)?;
-
-    let backend = CrosstermBackend::new(stdout);
-    let mut terminal = Terminal::new(backend)?;
 
     let f_packages = packages
         .iter()
@@ -41,20 +37,51 @@ pub fn list(_args: ciri::args::package::List) -> Result<(), io::Error> {
         })
         .collect::<Vec<Vec<String>>>();
 
-    let mut app = App::new(f_packages);
-    app.state.select(Some(0));
-    let res = run_app(&mut terminal, app);
+    let headers = vec![
+        "ID",
+        "Package name",
+        "Version",
+        "Description",
+        "Licenses",
+        "URL",
+        "Installed Size",
+        "Install Date",
+    ];
 
-    disable_raw_mode()?;
-    execute!(
-        terminal.backend_mut(),
-        LeaveAlternateScreen,
-        DisableMouseCapture
-    )?;
-    terminal.show_cursor()?;
+    let widths = vec![
+        Constraint::Percentage(2),
+        Constraint::Percentage(12),
+        Constraint::Percentage(14),
+        Constraint::Percentage(23),
+        Constraint::Percentage(14),
+        Constraint::Percentage(14),
+        Constraint::Percentage(6),
+        Constraint::Percentage(12),
+    ];
 
-    if let Err(err) = res {
-        println!("{:?}", err)
-    }
+    let app = Table::new(
+        "System Package List",
+        None,
+        headers,
+        f_packages,
+        widths,
+        Some(|cell, multiline_cell, j| {
+            if j == 1 {
+                Cell::from(cell.clone()).bold()
+            } else if j == 4 {
+                Cell::from(
+                    Line::styled(multiline_cell, Style::default().green())
+                        .alignment(ratatui::layout::Alignment::Center),
+                )
+            } else {
+                Cell::from(multiline_cell)
+            }
+        }),
+    );
+
+    let mut terminal = prepare_app()?;
+    run_app(app, &mut terminal)?;
+    finalize_app(terminal)?;
+
     Ok(())
 }

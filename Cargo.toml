@@ -10,13 +10,12 @@ clap = { version = "4.4.11", features = ["derive", "color"] }
 clap_complete = "4.4.4"
 comfy-table = "7.1.0"
 crossterm = "0.27.0"
-env_logger = "0.10.1"
+flexi_logger = "0.27.3"
 inquire = "0.6.2"
 log = "0.4.20"
+miette = { version = "5.10.0", features = ["fancy"] }
 nom = "7.1.3"
+nu-ansi-term = "0.49.0"
 ratatui = "0.25.0"
-thiserror = "1.0.51"
 tokio = "1.35.0"
-
-[dev-dependencies]
-env_logger = "0.10.1"
+which = "5.0.0"
