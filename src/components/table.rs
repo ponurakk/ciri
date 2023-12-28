@@ -175,7 +175,7 @@ fn ui(f: &mut Frame, app: &mut Table) {
     let width = f.size().width;
     let height = f.size().height;
     let rects = if let Some(size) = app.size {
-        app.input.size = Some(Box::new(move |size: Rect| Rect {
+        app.input.size_callback = Some(Box::new(move |size: Rect| Rect {
             y: size.height - Constraint::Length(3).apply(3),
             width: Constraint::Percentage(35).apply(width),
             height: height - Constraint::Length(3).apply(3),
@@ -186,7 +186,7 @@ fn ui(f: &mut Frame, app: &mut Table) {
             .constraints([Constraint::Min(30)].as_ref())
             .split(size(f.size()))
     } else {
-        app.input.size = Some(Box::new(|size: Rect| Rect {
+        app.input.size_callback = Some(Box::new(|size: Rect| Rect {
             y: size.height - Constraint::Length(3).apply(3),
             width: size.width,
             height: size.height,
@@ -271,5 +271,5 @@ fn ui(f: &mut Frame, app: &mut Table) {
         .highlight_symbol("> ");
 
     f.render_stateful_widget(t, rects[0], &mut app.state);
-    ui_input(f, &app.input);
+    ui_input(f, &mut app.input);
 }
