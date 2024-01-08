@@ -6,7 +6,7 @@ use ratatui::widgets::Cell;
 
 use crate::components::table::{run_app, Table};
 use crate::components::{finalize_app, prepare_app};
-use crate::PACKAGE_MANAGERS;
+use crate::PackageManagers;
 
 pub fn find() -> miette::Result<()> {
     let app = Table::new(
@@ -17,7 +17,7 @@ pub fn find() -> miette::Result<()> {
             ..Default::default()
         }),
         vec!["Name", "Status"],
-        PACKAGE_MANAGERS
+        PackageManagers::to_vec()
             .iter()
             .flat_map(|name| vec![vec![name.to_string(), check(name)]])
             .collect::<Vec<Vec<String>>>(),

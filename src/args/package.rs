@@ -2,10 +2,20 @@ use std::path::PathBuf;
 
 use clap::{Args, Subcommand};
 
+use crate::PackageManagers;
+
 #[derive(Args)]
 pub struct New {
     /// Name of project
-    pub name: String,
+    pub name: Option<String>,
+
+    /// Select package manager you would like to use
+    #[arg(short, long)]
+    pub manager: PackageManagers,
+
+    /// Don't ask additional prompts about package creation and go with defaults
+    #[arg(short, long)]
+    pub defaults: bool,
 }
 
 #[derive(Args)]

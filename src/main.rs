@@ -3,7 +3,6 @@ extern crate log;
 
 mod commands;
 mod components;
-mod parsers;
 
 use std::io::{self, Write};
 
@@ -23,6 +22,7 @@ use self::commands::system;
 fn colorize_string(input: &str, color: Color) -> String {
     format!("{}{}{}", SetForegroundColor(color), input, ResetColor)
 }
+
 fn my_format(
     write: &mut dyn Write,
     _now: &mut DeferredNow,
@@ -97,6 +97,7 @@ fn package_subcommand(cmd: System) -> miette::Result<()> {
 fn project_subcommand(cmd: Package) -> miette::Result<()> {
     if let Some(subcommands) = cmd.subcommands {
         match subcommands {
+            PackageSubCommands::New(args) => package::new(args)?,
             PackageSubCommands::Build(args) => {
                 info!("{:?} {:?} {}", args.name, args.script, args.watch);
                 println!("Building...");

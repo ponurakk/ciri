@@ -4,12 +4,11 @@ use nom::branch::alt;
 use nom::bytes::complete::{tag, take_until};
 use nom::character::complete::{alpha1, anychar, one_of, space0};
 use nom::combinator::{map, opt, rest};
-use nom::error::{context, VerboseError};
+use nom::error::context;
 use nom::multi::{many0, many1};
 use nom::sequence::{delimited, separated_pair, tuple};
-use nom::IResult;
 
-type Res<T, U> = IResult<T, U, VerboseError<T>>;
+use crate::parsers::Res;
 
 fn valid_string(input: &str) -> Res<&str, String> {
     context(
@@ -189,9 +188,7 @@ impl Package {
                 self.install_script = value.expect("Error in parsing install script")
             }
             "Validated By" => self.validated_by = value,
-            &_ => {
-                println!("{:#?} {:#?}", input, value);
-            }
+            &_ => {}
         }
     }
 }

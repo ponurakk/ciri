@@ -1,5 +1,6 @@
 use std::process::Command;
 
+use ciri::parsers::system::pacman::packages;
 use miette::{IntoDiagnostic, WrapErr};
 use ratatui::layout::Constraint;
 use ratatui::style::{Style, Stylize};
@@ -8,7 +9,6 @@ use ratatui::widgets::Cell;
 
 use crate::components::table::{run_app, Table};
 use crate::components::{finalize_app, prepare_app};
-use crate::parsers::system::pacman::packages;
 
 pub fn list(_args: ciri::args::system::List) -> miette::Result<()> {
     let out = Command::new("pacman")
