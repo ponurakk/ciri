@@ -11,23 +11,26 @@ use ciri::args::{PackageSubCommands, SystemSubCommands};
 use ciri::validators::package::find;
 use ciri::{Cli, Package, System};
 use clap::Parser;
+use crossterm::style::{Color, ResetColor, SetForegroundColor};
 use crossterm::terminal::{disable_raw_mode, LeaveAlternateScreen};
 use flexi_logger::DeferredNow;
 use log::Record;
 use miette::IntoDiagnostic;
-use nu_ansi_term::Color;
 
 use self::commands::package;
 use self::commands::system;
 
+fn colorize_string(input: &str, color: Color) -> String {
+    format!("{}{}{}", SetForegroundColor(color), input, ResetColor)
+}
 fn my_format(
     write: &mut dyn Write,
     _now: &mut DeferredNow,
     record: &Record,
 ) -> std::io::Result<()> {
     let color = match record.level() {
-        log::Level::Trace => Color::Blue,
-        log::Level::Debug => Color::LightBlue,
+        log::Level::Trace => Color::DarkBlue,
+        log::Level::Debug => Color::Blue,
         log::Level::Info => Color::Green,
         log::Level::Warn => Color::Yellow,
         log::Level::Error => Color::Red,
@@ -36,7 +39,7 @@ fn my_format(
     write!(
         write,
         "{} [{}] {}",
-        color.paint(record.level().to_string()),
+        colorize_string(&record.level().to_string(), color),
         record.target(),
         record.args()
     )
@@ -53,8 +56,7 @@ fn main() -> miette::Result<()> {
         original_hook(panic);
     }));
 
-    let logger_config = "info";
-    flexi_logger::Logger::try_with_str(logger_config)
+    flexi_logger::Logger::try_with_str("info")
         .expect("Logger config string formatted incorrectly")
         .format(my_format)
         .start()
