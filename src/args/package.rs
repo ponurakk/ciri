@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use clap::{Args, Subcommand};
+use clap::Args;
 
 use crate::PackageManagers;
 
@@ -72,37 +72,4 @@ pub struct Remove {
 pub struct Update {
     /// Name of package to update
     pub name: Option<String>,
-}
-
-// TODO: Detect package manager (cargo, npm*, pip, go, gradle, maven)
-// And check for watch utility. Native or third party
-#[derive(Subcommand)]
-pub enum PackageSubCommands {
-    /// Build executable or execute build script
-    #[clap(visible_alias = "n")]
-    New(New),
-
-    /// Build executable or execute build script
-    #[clap(visible_alias = "b")]
-    Build(Build),
-
-    /// Run executable or execute run script
-    #[clap(visible_alias = "r")]
-    Run(Run),
-
-    /// Runs tests on project
-    #[clap(visible_alias = "t")]
-    Test(Test),
-
-    /// Adds a dependency
-    #[clap(visible_alias = "a")]
-    Add(Add),
-
-    /// Removes a dependency
-    #[clap(visible_alias = "rm")]
-    Remove(Remove),
-
-    /// Updates dependencies or just one
-    #[clap(visible_alias = "up")]
-    Update(Update),
 }

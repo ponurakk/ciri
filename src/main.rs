@@ -6,9 +6,9 @@ mod components;
 
 use std::io::{self, Write};
 
-use ciri::args::{PackageSubCommands, SystemSubCommands};
+use ciri::args::SystemSubCommands;
 use ciri::validators::package::find;
-use ciri::{Cli, Package, System};
+use ciri::{Cli, System};
 use clap::Parser;
 use crossterm::style::{Color, ResetColor, SetForegroundColor};
 use crossterm::terminal::{disable_raw_mode, LeaveAlternateScreen};
@@ -69,10 +69,23 @@ fn main() -> miette::Result<()> {
         return Ok(());
     }
 
+    // TODO: Detect package manager (cargo, npm*, pip, go, gradle, maven)
+    // And check for watch utility. Native or third party
     if let Some(subsommands) = cli.subcommands {
         match subsommands {
             ciri::SubCommands::System(cmd) => package_subcommand(cmd)?,
-            ciri::SubCommands::Package(cmd) => project_subcommand(cmd)?,
+            ciri::SubCommands::New(args) => package::new(args)?,
+            ciri::SubCommands::Build(args) => {
+                info!("{:?} {:?} {}", args.name, args.script, args.watch);
+                println!("Building...");
+            }
+
+            ciri::SubCommands::Run(args) => {
+                info!("{:?} {:?} {}", args.name, args.build, args.watch);
+                println!("Running...");
+            }
+
+            _ => todo!(),
         }
     } else {
         error!("No operation provided. (Use '-h' for help)");
@@ -85,29 +98,6 @@ fn package_subcommand(cmd: System) -> miette::Result<()> {
     if let Some(subcommands) = cmd.subcommands {
         match subcommands {
             SystemSubCommands::List(args) => system::list(args)?,
-            _ => todo!(),
-        }
-    } else {
-        error!("No operation provided. (Use '-h' for help)");
-    }
-
-    Ok(())
-}
-
-fn project_subcommand(cmd: Package) -> miette::Result<()> {
-    if let Some(subcommands) = cmd.subcommands {
-        match subcommands {
-            PackageSubCommands::New(args) => package::new(args)?,
-            PackageSubCommands::Build(args) => {
-                info!("{:?} {:?} {}", args.name, args.script, args.watch);
-                println!("Building...");
-            }
-
-            PackageSubCommands::Run(args) => {
-                info!("{:?} {:?} {}", args.name, args.build, args.watch);
-                println!("Running...");
-            }
-
             _ => todo!(),
         }
     } else {

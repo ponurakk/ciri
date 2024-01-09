@@ -13,7 +13,8 @@ use std::fmt::Display;
 use clap::{Args, ColorChoice, Parser, Subcommand, ValueEnum};
 use lazy_static::lazy_static;
 
-use self::args::{PackageSubCommands, SystemSubCommands};
+use self::args::package::{Add, Build, New, Remove, Run, Test, Update};
+use self::args::SystemSubCommands;
 use self::entities::managers::{Manager, CARGO_MANAGER, NPM_MANAGER};
 
 #[derive(Parser)]
@@ -33,21 +34,39 @@ pub enum SubCommands {
     #[command(visible_alias = "sys")]
     System(System),
 
-    /// Manage your project packages
-    #[clap(visible_alias = "pr")]
-    Package(Package),
+    /// Create new project structure
+    #[clap(visible_alias = "n")]
+    New(New),
+
+    /// Build executable or execute build script
+    #[clap(visible_alias = "b")]
+    Build(Build),
+
+    /// Run executable or execute run script
+    #[clap(visible_alias = "r")]
+    Run(Run),
+
+    /// Runs tests on project
+    #[clap(visible_alias = "t")]
+    Test(Test),
+
+    /// Adds a dependency
+    #[clap(visible_alias = "a")]
+    Add(Add),
+
+    /// Removes a dependency
+    #[clap(visible_alias = "rm")]
+    Remove(Remove),
+
+    /// Updates dependencies or just one
+    #[clap(visible_alias = "up")]
+    Update(Update),
 }
 
 #[derive(Args)]
 pub struct System {
     #[command(subcommand)]
     pub subcommands: Option<SystemSubCommands>,
-}
-
-#[derive(Args)]
-pub struct Package {
-    #[command(subcommand)]
-    pub subcommands: Option<PackageSubCommands>,
 }
 
 #[derive(Debug, Clone, ValueEnum)]
