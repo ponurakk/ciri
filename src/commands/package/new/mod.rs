@@ -6,9 +6,11 @@ use ciri::validators::inquire::{
 };
 use ciri::PackageManagers;
 use clap::builder::OsStr;
-use inquire::{required, Text};
+use inquire::{required, Select, Text};
 use miette::IntoDiagnostic;
 
+mod cargo;
+mod cpp;
 mod node;
 
 pub fn new(args: New) -> miette::Result<()> {
@@ -18,6 +20,8 @@ pub fn new(args: New) -> miette::Result<()> {
             Ok(())
         }
         PackageManagers::Bun => node::new_bun(args),
+        PackageManagers::Cargo => cargo::new(args),
+        PackageManagers::Gpp | PackageManagers::Clangpp => cpp::new(args),
         _ => todo!(),
     }
 }
@@ -72,4 +76,13 @@ pub fn prompt_author() -> miette::Result<String> {
 
 pub fn prompt_description() -> miette::Result<String> {
     Text::new("description").prompt().into_diagnostic()
+}
+
+fn prompt_type<'a>() -> miette::Result<&'a str> {
+    Select::new(
+        "Would you like to create a binary or a library?",
+        vec!["bin", "lib"],
+    )
+    .prompt()
+    .into_diagnostic()
 }

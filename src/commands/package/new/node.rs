@@ -19,6 +19,7 @@ pub struct ManifestQuestions {
     license: String,
 }
 
+/// Get language from user
 fn prompt_language<'a>() -> miette::Result<&'a str> {
     Select::new(
         "What language would you like to choose?",
@@ -28,6 +29,7 @@ fn prompt_language<'a>() -> miette::Result<&'a str> {
     .into_diagnostic()
 }
 
+/// Get entry based on chosen language
 fn prompt_entry(ts_js: &str) -> miette::Result<String> {
     let mut entry = Text::new("entry point");
 
@@ -39,14 +41,28 @@ fn prompt_entry(ts_js: &str) -> miette::Result<String> {
     entry.prompt().into_diagnostic()
 }
 
+/// Prompt user for manifest configuartions
 pub fn get_values(args: New) -> miette::Result<ManifestQuestions> {
-    let ts_js = prompt_language()?;
     let name = prompt_name(args.name)?;
-    let version = prompt_version()?;
-    let description = prompt_description()?;
-    let entry = prompt_entry(ts_js)?;
-    let author = prompt_author()?;
-    let license = prompt_license()?;
+    let version;
+    let description;
+    let entry;
+    let author;
+    let license;
+    if args.defaults {
+        version = "1.0.0".to_owned();
+        description = "".to_owned();
+        entry = "index.js".to_owned();
+        author = "".to_owned();
+        license = "ISC".to_owned();
+    } else {
+        let ts_js = prompt_language()?;
+        version = prompt_version()?;
+        description = prompt_description()?;
+        entry = prompt_entry(ts_js)?;
+        author = prompt_author()?;
+        license = prompt_license()?;
+    }
 
     Ok(ManifestQuestions {
         name,
