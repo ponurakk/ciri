@@ -1,4 +1,4 @@
-use std::fs::File;
+use std::fs::{self, File};
 use std::io::Write;
 
 use ciri::args::package::New;
@@ -95,7 +95,7 @@ pub fn new(args: New) -> miette::Result<bool> {
     let values = get_values(args)?;
     let entry = values.entry.clone();
     let package_json = PackageJson::new(
-        values.name,
+        values.name.clone(),
         values.version,
         values.description,
         values.entry,
@@ -105,12 +105,13 @@ pub fn new(args: New) -> miette::Result<bool> {
     );
     let package_json_str = serde_json::to_string_pretty(&package_json).into_diagnostic()?;
 
-    File::create("package.json")
+    fs::create_dir_all(&values.name).into_diagnostic()?;
+    File::create(format!("{}/package.json", &values.name))
         .into_diagnostic()?
         .write_all(package_json_str.as_bytes())
         .into_diagnostic()?;
 
-    File::create(&entry)
+    File::create(format!("{}/{}", &values.name, &entry))
         .into_diagnostic()?
         .write_all(b"console.log(\"Hello, World!\");")
         .into_diagnostic()?;
@@ -121,6 +122,7 @@ pub fn new(args: New) -> miette::Result<bool> {
 pub fn new_bun(args: New) -> miette::Result<()> {
     new(args)?;
 
+    // FIX: this needs to be created in subdirectory
     File::create("tsconfig.json")
         .into_diagnostic()?
         .write_all(

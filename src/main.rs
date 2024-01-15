@@ -75,14 +75,10 @@ fn main() -> miette::Result<()> {
         match subsommands {
             ciri::SubCommands::System(cmd) => package_subcommand(cmd)?,
             ciri::SubCommands::New(args) => package::new(args)?,
+            ciri::SubCommands::Run(args) => package::run(args)?,
             ciri::SubCommands::Build(args) => {
                 info!("{:?} {:?} {}", args.name, args.script, args.watch);
                 println!("Building...");
-            }
-
-            ciri::SubCommands::Run(args) => {
-                info!("{:?} {:?} {}", args.name, args.build, args.watch);
-                println!("Running...");
             }
 
             _ => todo!(),

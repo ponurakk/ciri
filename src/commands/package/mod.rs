@@ -1,6 +1,5 @@
-// TODO: Make package top level command
-// ex.
-// ciri package run -> ciri run
-
 mod new;
+mod run;
+
 pub use new::new;
+pub use run::run;

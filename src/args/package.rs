@@ -4,7 +4,7 @@ use clap::Args;
 
 use crate::PackageManagers;
 
-#[derive(Args)]
+#[derive(Args, Debug)]
 pub struct New {
     /// Name of project
     pub name: Option<String>,
@@ -18,7 +18,7 @@ pub struct New {
     pub defaults: bool,
 }
 
-#[derive(Args)]
+#[derive(Args, Debug)]
 pub struct Build {
     /// Specific file to build
     pub name: Option<PathBuf>,
@@ -32,7 +32,7 @@ pub struct Build {
     pub watch: bool,
 }
 
-#[derive(Args)]
+#[derive(Args, Debug)]
 pub struct Run {
     /// Specific file to run
     pub name: Option<PathBuf>,
@@ -46,7 +46,7 @@ pub struct Run {
     pub watch: bool,
 }
 
-#[derive(Args)]
+#[derive(Args, Debug)]
 pub struct Test {
     /// Specific file to test
     pub name: Option<PathBuf>,
@@ -56,19 +56,19 @@ pub struct Test {
     pub watch: bool,
 }
 
-#[derive(Args)]
+#[derive(Args, Debug)]
 pub struct Add {
     /// Name of package to add
     pub name: String,
 }
 
-#[derive(Args)]
+#[derive(Args, Debug)]
 pub struct Remove {
     /// Name of package to remove
     pub name: String,
 }
 
-#[derive(Args)]
+#[derive(Args, Debug)]
 pub struct Update {
     /// Name of package to update
     pub name: Option<String>,

@@ -1,14 +1,14 @@
 use std::collections::HashMap;
 
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
-#[derive(Serialize)]
+#[derive(Serialize, Deserialize)]
 pub struct PackageJson {
     name: String,
     version: String,
     description: String,
     main: String,
-    scripts: HashMap<String, String>,
+    pub scripts: HashMap<String, String>,
     keywords: Vec<String>,
     author: String,
     license: String,
