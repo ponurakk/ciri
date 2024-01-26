@@ -5,6 +5,7 @@ pub struct Manager {
     pub doc: Option<&'static str>,
     pub clean: Option<&'static str>,
     pub run: &'static str,
+    pub default_exec: Option<&'static str>,
     pub remove: &'static str,
     pub remove_global: &'static str,
     // pub frozen: Option<&'static str>,
@@ -24,6 +25,7 @@ pub const CARGO_MANAGER: Manager = Manager {
     doc: Some("cargo doc"),
     clean: Some("cargo clean"),
     run: "cargo run",
+    default_exec: None,
     remove: "cargo rm",
     remove_global: "cargo uninstall",
     add: "cargo add",
@@ -41,6 +43,7 @@ pub const NPM_MANAGER: Manager = Manager {
     doc: None,
     clean: None, // TODO: Remove node_modules
     run: "npm run",
+    default_exec: Some("node"),
     remove: "npm uninstall",
     remove_global: "npm uninstall --global",
     add: "npm install",
@@ -50,4 +53,22 @@ pub const NPM_MANAGER: Manager = Manager {
     upgrade: "npm update",
     execute: Some("npx"),
     new: "npm init", // TODO: Create new directory and init there
+};
+
+pub const PNPM_MANAGER: Manager = Manager {
+    agent: "pnpm",
+    build: None,
+    doc: None,
+    clean: None,
+    run: "pnpm run",
+    default_exec: Some("node"),
+    remove: "pnpm remove",
+    remove_global: "pnpm remove --global",
+    add: "pnpm add",
+    add_global: "pnpm add --global",
+    test: "pnpm test",
+    search: "pnpm search",
+    upgrade: "pnpm update",
+    execute: Some("pnpx"),
+    new: "pnpm init",
 };

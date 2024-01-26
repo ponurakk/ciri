@@ -9,13 +9,15 @@ pub mod validators;
 
 use std::collections::HashMap;
 use std::fmt::Display;
+use std::str::FromStr;
 
 use clap::{Args, ColorChoice, Parser, Subcommand, ValueEnum};
 use lazy_static::lazy_static;
+use miette::bail;
 
 use self::args::package::{Add, Build, New, Remove, Run, Test, Update};
 use self::args::SystemSubCommands;
-use self::entities::managers::{Manager, CARGO_MANAGER, NPM_MANAGER};
+use self::entities::managers::*;
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None, color = ColorChoice::Always)]
@@ -140,11 +142,50 @@ impl PackageManagers {
         .collect()
     }
 
-    pub fn to_manager(&self) -> Manager {
+    pub fn to_manager(&self) -> miette::Result<Manager> {
         match self {
-            Self::Cargo => CARGO_MANAGER,
-            Self::Npm => NPM_MANAGER,
-            &_ => CARGO_MANAGER,
+            Self::Cargo => Ok(CARGO_MANAGER),
+            Self::Npm => Ok(NPM_MANAGER),
+            Self::Pnpm => Ok(PNPM_MANAGER),
+            &_ => bail!("Package manager was not yet implemented"),
+        }
+    }
+}
+
+impl FromStr for PackageManagers {
+    type Err = miette::Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_lowercase().as_str() {
+            "bun" => Ok(Self::Bun),
+            "cargo" => Ok(Self::Cargo),
+            "clang" => Ok(Self::Clang),
+            "clangpp" => Ok(Self::Clangpp),
+            "composer" => Ok(Self::Composer),
+            "dart" => Ok(Self::Dart),
+            "deno" => Ok(Self::Deno),
+            "flutter" => Ok(Self::Flutter),
+            "gpp" => Ok(Self::Gpp),
+            "gcc" => Ok(Self::Gcc),
+            "go" => Ok(Self::Go),
+            "gradle" => Ok(Self::Gradle),
+            "groovy" => Ok(Self::Groovy),
+            "java" => Ok(Self::Java),
+            "kotlin" => Ok(Self::Kotlin),
+            "lua" => Ok(Self::Lua),
+            "maven" => Ok(Self::Maven),
+            "node" => Ok(Self::Node),
+            "npm" => Ok(Self::Npm),
+            "php" => Ok(Self::Php),
+            "pip" => Ok(Self::Pip),
+            "pnpm" => Ok(Self::Pnpm),
+            "python" => Ok(Self::Python),
+            "ruby" => Ok(Self::Ruby),
+            "scala" => Ok(Self::Scala),
+            "swift" => Ok(Self::Swift),
+            "yarn" => Ok(Self::Yarn),
+            "zig" => Ok(Self::Zig),
+            &_ => bail!("No manager found"),
         }
     }
 }
@@ -280,7 +321,7 @@ lazy_static! {
                 ".metals", // dir
             ],
         ),
-        ("rust", vec!["Cargo.toml", ".rs"]),
+        ("cargo", vec!["Cargo.toml", ".rs"]),
         ("swift", vec!["Package.swift", ".swift"]),
         (
             "zig",

@@ -94,6 +94,17 @@ mod tests {
             managers_multiple_matches,
             vec!["npm".to_owned(), "pnpm".to_owned()]
         );
+
+        let mut managers_multiple_matches = filter_false(
+            &vec!["cargo", "npm"],
+            &vec!["package-lock.json".to_owned(), "Cargo.toml".to_owned()],
+        )
+        .unwrap();
+        managers_multiple_matches.sort();
+        assert_eq!(
+            managers_multiple_matches,
+            vec!["cargo".to_owned(), "npm".to_owned()]
+        );
     }
 
     #[test]
@@ -112,5 +123,8 @@ mod tests {
             &vec!["./package.json".to_owned(), "package-lock.json".to_owned()],
         );
         assert_eq!(invalid_manager, 0);
+
+        let paths_number = count_paths_for_language("cargo", &vec!["main.rs".to_owned()]);
+        assert_eq!(paths_number, 1);
     }
 }
