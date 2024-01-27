@@ -13,7 +13,7 @@ use std::str::FromStr;
 
 use clap::{Args, ColorChoice, Parser, Subcommand, ValueEnum};
 use lazy_static::lazy_static;
-use miette::bail;
+use miette::{bail, IntoDiagnostic};
 
 use self::args::package::{Add, Build, New, Remove, Run, Test, Update};
 use self::args::SystemSubCommands;
@@ -147,6 +147,9 @@ impl PackageManagers {
             Self::Cargo => Ok(CARGO_MANAGER),
             Self::Npm => Ok(NPM_MANAGER),
             Self::Pnpm => Ok(PNPM_MANAGER),
+            Self::Yarn => Ok(YARN_MANAGER),
+            Self::Bun => Ok(BUN_MANAGER),
+            Self::Gpp => Ok(GPP_MANAGER),
             &_ => bail!("Package manager was not yet implemented"),
         }
     }
@@ -160,12 +163,12 @@ impl FromStr for PackageManagers {
             "bun" => Ok(Self::Bun),
             "cargo" => Ok(Self::Cargo),
             "clang" => Ok(Self::Clang),
-            "clangpp" => Ok(Self::Clangpp),
+            "clang++" => Ok(Self::Clangpp),
             "composer" => Ok(Self::Composer),
             "dart" => Ok(Self::Dart),
             "deno" => Ok(Self::Deno),
             "flutter" => Ok(Self::Flutter),
-            "gpp" => Ok(Self::Gpp),
+            "g++" => Ok(Self::Gpp),
             "gcc" => Ok(Self::Gcc),
             "go" => Ok(Self::Go),
             "gradle" => Ok(Self::Gradle),
@@ -228,7 +231,8 @@ impl Display for PackageManagers {
 lazy_static! {
     static ref LANGUAGES: HashMap<&'static str, Vec<&'static str>> = HashMap::from([
         ("c", vec![".c", ".h"]),
-        ("cpp", vec![".cpp", ".c++", ".hpp"]),
+        ("g++", vec![".cpp", ".c++", ".hpp", "CMakeLists.txt"]),
+        // ("clang++", vec![".cpp", ".c++", ".hpp"]),
         (
             "dart",
             vec![
@@ -333,3 +337,32 @@ lazy_static! {
         ),
     ]);
 }
+
+pub trait Util {
+    fn to_tuple(&self) -> miette::Result<(&str, &str)>;
+}
+
+impl Util for &str {
+    fn to_tuple(&self) -> miette::Result<(&str, &str)> {
+        let p = self.split_whitespace().collect::<Vec<_>>();
+        Ok((
+            p.get(0).ok_or(Error::NoArgument).into_diagnostic()?,
+            p.get(1).ok_or(Error::NoArgument).into_diagnostic()?,
+        ))
+    }
+}
+
+#[derive(Debug)]
+enum Error {
+    NoArgument,
+}
+
+impl std::fmt::Display for Error {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match *self {
+            Self::NoArgument => write!(f, "Command doesn't have enough arguments"),
+        }
+    }
+}
+
+impl std::error::Error for Error {}

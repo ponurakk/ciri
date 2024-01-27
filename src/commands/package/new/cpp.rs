@@ -1,8 +1,8 @@
 use std::fs::{self, File};
 use std::io::Write;
-use std::process::{Command, Stdio};
 
 use ciri::args::package::New;
+use duct::cmd;
 use miette::IntoDiagnostic;
 
 use super::{prompt_name, prompt_type};
@@ -72,11 +72,10 @@ target_include_directories(${{PROJECT_NAME}} PRIVATE include)",
         .write_all(b"/build")
         .into_diagnostic()?;
 
-    Command::new("git")
-        .args(["init", name])
-        .stdout(Stdio::null())
-        .stderr(Stdio::null())
-        .spawn()
+    cmd!("git", "init", name)
+        .stdout_null()
+        .stderr_null()
+        .run()
         .into_diagnostic()?;
 
     Ok(())

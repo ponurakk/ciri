@@ -1,6 +1,5 @@
-use std::process::Command;
-
 use ciri::args::package::New;
+use duct::cmd;
 use miette::IntoDiagnostic;
 
 use super::{prompt_name, prompt_type};
@@ -14,11 +13,8 @@ pub fn new(args: New) -> miette::Result<()> {
 
     let _type = prompt_type()?;
 
-    Command::new("cargo")
-        .arg("new")
-        .arg(name)
-        .arg(format!("--{}", _type))
-        .output()
+    cmd!("cargo", "new", name, format!("--{}", _type))
+        .run()
         .into_diagnostic()?;
 
     Ok(())

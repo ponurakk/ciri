@@ -69,8 +69,7 @@ fn main() -> miette::Result<()> {
         return Ok(());
     }
 
-    // TODO: Detect package manager (cargo, npm*, pip, go, gradle, maven)
-    // And check for watch utility. Native or third party
+    // TODO: And check for watch utility. Native or third party
     if let Some(subsommands) = cli.subcommands {
         match subsommands {
             ciri::SubCommands::System(cmd) => package_subcommand(cmd)?,
@@ -101,4 +100,21 @@ fn package_subcommand(cmd: System) -> miette::Result<()> {
     }
 
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn colorize_string_test() {
+        assert_eq!(
+            colorize_string("test", Color::Red),
+            format!("\u{1b}[38;5;9mtest\u{1b}[0m")
+        );
+        assert_eq!(
+            colorize_string("test", Color::Blue),
+            format!("\u{1b}[38;5;12mtest\u{1b}[0m")
+        );
+    }
 }

@@ -4,7 +4,7 @@ pub struct Manager {
     pub build: Option<&'static str>,
     pub doc: Option<&'static str>,
     pub clean: Option<&'static str>,
-    pub run: &'static str,
+    pub run: Option<&'static str>,
     pub default_exec: Option<&'static str>,
     pub remove: &'static str,
     pub remove_global: &'static str,
@@ -12,11 +12,11 @@ pub struct Manager {
     // pub global: &'static str,
     pub add: &'static str,
     pub add_global: &'static str,
-    pub test: &'static str,
+    pub test: Option<&'static str>,
     pub search: &'static str,
     pub upgrade: &'static str,
     pub execute: Option<&'static str>,
-    pub new: &'static str,
+    pub new: Option<&'static str>,
 }
 
 pub const CARGO_MANAGER: Manager = Manager {
@@ -24,17 +24,17 @@ pub const CARGO_MANAGER: Manager = Manager {
     build: Some("cargo build"),
     doc: Some("cargo doc"),
     clean: Some("cargo clean"),
-    run: "cargo run",
-    default_exec: None,
+    run: Some("cargo run"),
+    default_exec: Some("cargo run"),
     remove: "cargo rm",
     remove_global: "cargo uninstall",
     add: "cargo add",
     add_global: "cargo install",
-    test: "cargo test",
+    test: Some("cargo test"),
     search: "cargo search",
     upgrade: "cargo update",
     execute: None,
-    new: "cargo new",
+    new: Some("cargo new"),
 };
 
 pub const NPM_MANAGER: Manager = Manager {
@@ -42,17 +42,17 @@ pub const NPM_MANAGER: Manager = Manager {
     build: None, // TODO: Add build from scripts
     doc: None,
     clean: None, // TODO: Remove node_modules
-    run: "npm run",
+    run: Some("npm run"),
     default_exec: Some("node"),
     remove: "npm uninstall",
     remove_global: "npm uninstall --global",
     add: "npm install",
     add_global: "npm install --global",
-    test: "npm test",
+    test: Some("npm test"),
     search: "npm search",
     upgrade: "npm update",
     execute: Some("npx"),
-    new: "npm init", // TODO: Create new directory and init there
+    new: Some("npm init"), // TODO: Create new directory and init there
 };
 
 pub const PNPM_MANAGER: Manager = Manager {
@@ -60,15 +60,69 @@ pub const PNPM_MANAGER: Manager = Manager {
     build: None,
     doc: None,
     clean: None,
-    run: "pnpm run",
+    run: Some("pnpm run"),
     default_exec: Some("node"),
     remove: "pnpm remove",
     remove_global: "pnpm remove --global",
     add: "pnpm add",
     add_global: "pnpm add --global",
-    test: "pnpm test",
+    test: Some("pnpm test"),
     search: "pnpm search",
     upgrade: "pnpm update",
     execute: Some("pnpx"),
-    new: "pnpm init",
+    new: Some("pnpm init"),
+};
+
+pub const YARN_MANAGER: Manager = Manager {
+    agent: "yarn",
+    build: None,
+    doc: None,
+    clean: None,
+    run: Some("yarn run"),
+    default_exec: Some("node"),
+    remove: "yarn remove",
+    remove_global: "yarn remove --global",
+    add: "yarn add",
+    add_global: "yarn add --global",
+    test: Some("yarn test"),
+    search: "yarn search",
+    upgrade: "yarn update",
+    execute: Some("yarn exec"),
+    new: Some("yarn init"),
+};
+
+pub const BUN_MANAGER: Manager = Manager {
+    agent: "bun",
+    build: None,
+    doc: None,
+    clean: None,
+    run: Some("bun run"),
+    default_exec: Some("bun"),
+    remove: "bun remove",
+    remove_global: "bun remove --global",
+    add: "bun add",
+    add_global: "bun add --global",
+    test: Some("bun test"),
+    search: "bun search",
+    upgrade: "bun update",
+    execute: Some("bunx"),
+    new: Some("bun init"),
+};
+
+pub const GPP_MANAGER: Manager = Manager {
+    agent: "g++",
+    build: Some("mkdir -p build && cd build && cmake .. && make"),
+    doc: None,
+    clean: Some("rm -r build/"),
+    run: Some("./build/"),
+    default_exec: Some("./build/"),
+    remove: "vcpkg remove",
+    remove_global: "vcpkg remove",
+    add: "vcpkg install",
+    add_global: "vcpkg install",
+    test: None,
+    search: "vcpkg search",
+    upgrade: "vcpkg update",
+    execute: None,
+    new: None,
 };
