@@ -1,5 +1,3 @@
-use clap::builder::OsStr;
-
 use crate::LANGUAGES;
 use std::collections::HashMap;
 use std::fs;
@@ -47,13 +45,24 @@ fn count_paths_for_language(language: &str, paths: &Vec<String>) -> usize {
     paths
         .iter()
         .filter(|v| {
-            LANGUAGES.get(language).unwrap_or(&vec![]).contains(
+            let langs = LANGUAGES.get(language).unwrap_or(&vec![]).clone();
+            if langs.contains(
                 &Path::new(v)
                     .file_name()
-                    .unwrap_or(&OsStr::from(""))
+                    .unwrap_or_default()
                     .to_str()
-                    .unwrap_or(""),
-            )
+                    .unwrap_or_default(),
+            ) || langs.contains(
+                &Path::new(v)
+                    .extension()
+                    .unwrap_or_default()
+                    .to_str()
+                    .unwrap_or_default(),
+            ) {
+                true
+            } else {
+                false
+            }
         })
         .count()
 }

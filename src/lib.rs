@@ -230,22 +230,41 @@ impl Display for PackageManagers {
 
 lazy_static! {
     static ref LANGUAGES: HashMap<&'static str, Vec<&'static str>> = HashMap::from([
-        ("c", vec![".c", ".h"]),
-        ("g++", vec![".cpp", ".c++", ".hpp", "CMakeLists.txt"]),
+        (
+            "c",
+            vec![
+                // Extensions
+                "c", "h",
+            ],
+        ),
+        (
+            "g++",
+            vec![
+                // Files
+                "CMakeLists.txt",
+                // Extensions
+                "cpp",
+                "c++",
+                "hpp",
+            ],
+        ),
         // ("clang++", vec![".cpp", ".c++", ".hpp"]),
         (
             "dart",
             vec![
+                // Files
                 ".dart",
-                ".dart_tool", // dir
                 "pubspec.yaml",
                 "pubspec.yml",
                 "pubspec.lock",
+                // Directories
+                ".dart_tool",
             ],
         ),
         (
             "go",
             vec![
+                // Files
                 "go.mod",
                 "go.sum",
                 "go.work",
@@ -253,13 +272,16 @@ lazy_static! {
                 "Gopkg.yml",
                 "Gopkg.lock",
                 ".go-version",
-                "Godeps", // dir
+                // Directories
+                "Godeps",
+                // Extensions
                 ".go",
             ],
         ),
         (
             "java",
             vec![
+                // Files
                 "pom.xml",
                 "build.gradle.kts",
                 "build.sbt",
@@ -268,41 +290,87 @@ lazy_static! {
                 "project.clj",
                 "build.boot",
                 ".sdkmanrc",
+                // Extensions
                 ".java",
                 ".class",
                 ".gradle",
                 ".jar",
                 ".clj",
-                ".cljc ",
+                ".cljc",
             ],
         ),
-        ("kotlin", vec![".kt", ".kts"]),
+        (
+            "kotlin",
+            vec![
+                // Extensions
+                "kt", "kts",
+            ],
+        ),
         (
             "lua",
             vec![
+                // Files
                 ".lua-version",
-                "lua", // dir
-                ".lua",
+                // Directories/Extensions
+                "lua",
             ],
         ),
         (
             "bun",
-            vec!["bun.lockb", "bunfig.toml", "package.json", "node_modules"],
+            vec![
+                // Files
+                "bun.lockb",
+                "bunfig.toml",
+                "package.json",
+                // Directories
+                "node_modules",
+            ],
         ),
         (
             "npm",
-            vec!["package-lock.json", "package.json", "node_modules"],
+            vec![
+                // Files
+                "package-lock.json",
+                "package.json",
+                // Directories
+                "node_modules",
+            ],
         ),
         (
             "pnpm",
-            vec!["pnpm-lock.yaml", "package.json", "node_modules"],
+            vec![
+                // Files
+                "pnpm-lock.yaml",
+                "package.json",
+                // Directories
+                "node_modules",
+            ],
         ),
-        ("yarn", vec!["yarn.lock", "package.json", "node_modules"]),
-        ("php", vec!["composer.json", ".php-version", ".php"]),
+        (
+            "yarn",
+            vec![
+                // Files
+                "yarn.lock",
+                "package.json",
+                // Directories
+                "node_modules",
+            ],
+        ),
+        (
+            "php",
+            vec![
+                // Files
+                "composer.json",
+                ".php-version",
+                // Extensions
+                "php",
+            ],
+        ),
         (
             // TODO: Add virtual env detection
             "python",
             vec![
+                // Files
                 ".python-version",
                 "Pipfile",
                 "__init__.py",
@@ -310,29 +378,62 @@ lazy_static! {
                 "requirements.txt",
                 "setup.py",
                 "tox.ini",
-                ".py",
+                // Extensions
+                "py",
             ],
         ),
-        ("ruby", vec!["Gemfile", ".ruby-version", ".rb"]),
+        (
+            "ruby",
+            vec![
+                // Files
+                "Gemfile",
+                ".ruby-version",
+                // Extensions
+                "rb",
+            ],
+        ),
         (
             "scala",
             vec![
+                // Files
                 "build.sbt",
-                ".scalaenv",
-                ".sbtenv",
-                ".scala",
-                ".sbt",
-                ".metals", // dir
+                // Directories
+                ".metals",
+                // Extensions
+                "scalaenv",
+                "sbtenv",
+                "scala",
+                "sbt",
             ],
         ),
-        ("cargo", vec!["Cargo.toml", ".rs"]),
-        ("swift", vec!["Package.swift", ".swift"]),
+        (
+            "cargo",
+            vec![
+                // Files
+                "Cargo.toml",
+                // Extensions
+                "rs",
+            ],
+        ),
+        (
+            "swift",
+            vec![
+                // Files
+                "Package.swift",
+                // Extensions
+                "swift",
+            ],
+        ),
         (
             "zig",
             vec![
-                ".zig",
-                "zig-cache", // dir
-                "zig-out",   // dir
+                // Files
+                "build.zig",
+                // Directories
+                "zig-cache",
+                "zig-out",
+                // Extensions
+                "zig",
             ],
         ),
     ]);
