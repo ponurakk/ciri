@@ -27,3 +27,7 @@ serde_json = "1.0.111"
 spdx = "0.10.3"
 tokio = "1.35.0"
 which = "5.0.0"
+
+[dev-dependencies]
+anyhow = "1.0.79"
+tempdir = "0.3.7"

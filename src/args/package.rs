@@ -4,7 +4,7 @@ use clap::Args;
 
 use crate::PackageManagers;
 
-#[derive(Args, Debug)]
+#[derive(Args, Debug, Clone)]
 pub struct New {
     /// Name of project
     pub name: Option<String>,
@@ -18,7 +18,7 @@ pub struct New {
     pub defaults: bool,
 }
 
-#[derive(Args, Debug)]
+#[derive(Args, Debug, Clone)]
 pub struct Build {
     /// Specific file to build
     pub name: Option<PathBuf>,
@@ -28,47 +28,63 @@ pub struct Build {
     pub script: Option<PathBuf>,
 
     /// Watch changes and restart
-    #[arg(long)]
+    #[arg(short, long)]
     pub watch: bool,
 }
 
-#[derive(Args, Debug)]
+impl Build {
+    pub fn new(name: Option<PathBuf>, script: Option<PathBuf>, watch: bool) -> Self {
+        Self {
+            name,
+            script,
+            watch,
+        }
+    }
+}
+
+#[derive(Args, Debug, Clone)]
 pub struct Run {
     /// Specific file to run
     pub name: Option<PathBuf>,
 
     /// Should build be run before executing
-    #[arg(long)]
+    #[arg(short, long)]
     pub build: bool,
 
     /// Watch changes and restart
-    #[arg(long)]
+    #[arg(short, long)]
     pub watch: bool,
 }
 
-#[derive(Args, Debug)]
+impl Run {
+    pub fn new(name: Option<PathBuf>, build: bool, watch: bool) -> Self {
+        Self { name, build, watch }
+    }
+}
+
+#[derive(Args, Debug, Clone)]
 pub struct Test {
     /// Specific file to test
     pub name: Option<PathBuf>,
 
     /// Watch changes and restart
-    #[arg(long)]
+    #[arg(short, long)]
     pub watch: bool,
 }
 
-#[derive(Args, Debug)]
+#[derive(Args, Debug, Clone)]
 pub struct Add {
     /// Name of package to add
     pub name: String,
 }
 
-#[derive(Args, Debug)]
+#[derive(Args, Debug, Clone)]
 pub struct Remove {
     /// Name of package to remove
     pub name: String,
 }
 
-#[derive(Args, Debug)]
+#[derive(Args, Debug, Clone)]
 pub struct Update {
     /// Name of package to update
     pub name: Option<String>,
