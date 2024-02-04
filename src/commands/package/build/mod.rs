@@ -84,51 +84,84 @@ fn handle_none() -> miette::Result<()> {
 }
 
 #[cfg(test)]
+#[serial_test::serial]
 mod tests {
+
     use super::*;
 
     use std::env;
-    use tempdir::TempDir;
 
-    /// BUG: This tests fails sometimes though prod works every time ¯\_(ツ)_/¯
-    /// I don't know if it's a race condition or permissions error
+    fn prepare_run_test(name: &str) -> anyhow::Result<()> {
+        std::fs::create_dir_all(format!("/tmp/ciri/build_test/{}", name))?;
+        cmd!(
+            "cp",
+            "-r",
+            format!("{}/example_projects/{}/.", env!("CARGO_MANIFEST_DIR"), name),
+            format!("/tmp/ciri/build_test/{}", name)
+        )
+        .run()?;
 
-    #[test]
-    fn build_rust_test() -> anyhow::Result<()> {
-        let tmp = TempDir::new_in(".", "ciri_tmp")?;
-        cmd!("cp", "-r", "example_projects/rust/.", tmp.path()).run()?;
-        env::set_current_dir(tmp.path())?;
-
-        let res = build(Build::new(None, None, false));
-        println!("{res:#?}");
-        assert!(res.is_ok());
+        env::set_current_dir(format!("/tmp/ciri/build_test/{}", name))?;
 
         Ok(())
     }
 
+    fn clean(name: &str) -> anyhow::Result<()> {
+        std::fs::remove_dir_all(format!("/tmp/ciri/build_test/{}", name))?;
+        Ok(())
+    }
+
     #[test]
-    fn build_node_test() -> anyhow::Result<()> {
-        let tmp = TempDir::new_in(".", "ciri_tmp")?;
-        cmd!("cp", "-r", "example_projects/node/.", tmp.path()).run()?;
-        env::set_current_dir(tmp.path())?;
+    #[serial_test::serial]
+    fn build_rust_test() -> anyhow::Result<()> {
+        prepare_run_test("rust")?;
 
         let res = build(Build::new(None, None, false));
-        println!("{res:#?}");
+        assert!(res.is_ok());
+
+        let res = build(Build::new(Some("example".into()), None, false));
+        assert!(res.is_ok());
+
+        clean("rust")?;
+        Ok(())
+    }
+
+    #[test]
+    #[serial_test::serial]
+    fn build_node_test() -> anyhow::Result<()> {
+        prepare_run_test("node")?;
+
+        let res = build(Build::new(None, None, false));
         assert!(res.is_err());
 
+        let res = build(Build::new(Some("example".into()), None, false));
+        assert!(res.is_err());
+
+        clean("node")?;
         Ok(())
     }
 
     #[test]
+    #[serial_test::serial]
     fn build_cpp_test() -> anyhow::Result<()> {
-        let tmp = TempDir::new_in(".", "ciri_tmp")?;
-        cmd!("cp", "-r", "example_projects/cpp/.", tmp.path()).run()?;
-        env::set_current_dir(tmp.path())?;
+        prepare_run_test("cpp")?;
 
         let res = build(Build::new(None, None, false));
-        println!("{res:#?}");
         assert!(res.is_ok());
 
+        let res = build(Build::new(Some("example".into()), None, false));
+        assert!(res.is_ok());
+
+        clean("cpp")?;
         Ok(())
+    }
+
+    #[test]
+    #[should_panic]
+    fn no_manager_test() {
+        prepare_run_test("").unwrap();
+
+        let res = build(Build::new(None, None, false));
+        assert!(res.is_ok());
     }
 }

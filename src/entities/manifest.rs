@@ -42,3 +42,45 @@ impl PackageJson {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_package_json_creation() {
+        let pkg_name = String::from("my_package");
+        let pkg_version = String::from("1.0.0");
+        let pkg_description = String::from("A test package");
+        let pkg_main = String::from("index.js");
+        let pkg_author = String::from("John Doe");
+        let pkg_license = String::from("MIT");
+        let pkg_name_for_test = String::from("test-package");
+
+        let package_json = PackageJson::new(
+            pkg_name.clone(),
+            pkg_version.clone(),
+            pkg_description.clone(),
+            pkg_main.clone(),
+            pkg_author.clone(),
+            pkg_license.clone(),
+            pkg_name_for_test.clone(),
+        );
+
+        assert_eq!(package_json.name, pkg_name);
+        assert_eq!(package_json.version, pkg_version);
+        assert_eq!(package_json.description, pkg_description);
+        assert_eq!(package_json.main, pkg_main);
+        assert_eq!(
+            package_json.scripts.get("test").unwrap(),
+            &"echo \"Error: no test specified\" && exit 1".to_owned()
+        );
+        assert_eq!(
+            package_json.scripts.get("preinstall").unwrap(),
+            &format!("npx only-allow {}", pkg_name_for_test)
+        );
+        assert_eq!(package_json.keywords, Vec::<String>::new());
+        assert_eq!(package_json.author, pkg_author);
+        assert_eq!(package_json.license, pkg_license);
+    }
+}

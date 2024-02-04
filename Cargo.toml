@@ -30,4 +30,4 @@ which = "5.0.0"
 
 [dev-dependencies]
 anyhow = "1.0.79"
-tempdir = "0.3.7"
+serial_test = "3.0.0"

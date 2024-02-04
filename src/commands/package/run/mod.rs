@@ -41,7 +41,7 @@ fn run_one(lang: &str, args: Run) -> miette::Result<()> {
         }
         PackageManagers::Gpp => {
             if args.build {
-                build_from_binary(Build::new(args.name.clone(), None, args.watch), pkg.clone())?;
+                build_from_binary(Build::new(None, None, args.watch), pkg.clone())?;
             }
             run_from_binary(args, pkg)
         }
@@ -109,49 +109,97 @@ fn handle_none() -> miette::Result<()> {
 }
 
 #[cfg(test)]
+#[serial_test::serial]
 mod tests {
     use super::*;
 
     use std::env;
-    use tempdir::TempDir;
+
+    fn prepare_run_test(name: &str) -> anyhow::Result<()> {
+        std::fs::create_dir_all(format!("/tmp/ciri/run_test/{}", name))?;
+        cmd!(
+            "cp",
+            "-r",
+            format!("{}/example_projects/{}/.", env!("CARGO_MANIFEST_DIR"), name),
+            format!("/tmp/ciri/run_test/{}", name)
+        )
+        .run()?;
+
+        env::set_current_dir(format!("/tmp/ciri/run_test/{}", name))?;
+
+        Ok(())
+    }
+
+    fn clean(name: &str) -> anyhow::Result<()> {
+        std::fs::remove_dir_all(format!("/tmp/ciri/run_test/{}", name))?;
+        Ok(())
+    }
 
     #[test]
+    #[serial_test::serial]
     fn run_rust_test() -> anyhow::Result<()> {
-        let tmp = TempDir::new_in(".", "ciri_tmp")?;
-        cmd!("cp", "-r", "example_projects/rust/.", tmp.path()).run()?;
-        env::set_current_dir(tmp.path())?;
+        prepare_run_test("rust")?;
 
         let res = run(Run::new(None, false, false));
-        println!("{res:#?}");
         assert!(res.is_ok());
-
-        Ok(())
-    }
-
-    #[test]
-    fn run_node_test() -> anyhow::Result<()> {
-        let tmp = TempDir::new_in(".", "ciri_tmp")?;
-        cmd!("cp", "-r", "example_projects/node/.", tmp.path()).run()?;
-        env::set_current_dir(tmp.path())?;
-
-        let res = run(Run::new(None, false, false));
-        println!("{res:#?}");
-        println!("{:#?}", env::current_dir());
-        assert!(res.is_ok());
-
-        Ok(())
-    }
-
-    #[test]
-    fn run_cpp_test() -> anyhow::Result<()> {
-        let tmp = TempDir::new_in(".", "ciri_tmp")?;
-        cmd!("cp", "-r", "example_projects/cpp/.", tmp.path()).run()?;
-        env::set_current_dir(tmp.path())?;
 
         let res = run(Run::new(None, true, false));
-        println!("{res:#?}");
+        assert!(res.is_ok());
+
+        let res = run(Run::new(Some("example".into()), false, false));
+        assert!(res.is_ok());
+
+        let res = run(Run::new(Some("example".into()), true, false));
+        assert!(res.is_ok());
+
+        clean("rust")?;
+        Ok(())
+    }
+
+    #[test]
+    #[serial_test::serial]
+    fn run_node_test() -> anyhow::Result<()> {
+        prepare_run_test("node")?;
+
+        let res = run(Run::new(None, false, false));
+        assert!(res.is_ok());
+
+        let res = run(Run::new(None, true, false));
         assert!(res.is_err());
 
+        clean("node")?;
         Ok(())
+    }
+
+    // NOTE: This test will fail for now because of incorect
+    // binary name for cpp.
+    #[test]
+    #[serial_test::serial]
+    fn run_cpp_test() -> anyhow::Result<()> {
+        prepare_run_test("cpp")?;
+
+        let res = run(Run::new(None, false, false));
+        assert!(res.is_err());
+
+        let res = run(Run::new(None, true, false));
+        assert!(res.is_err());
+
+        let res = run(Run::new(Some("example".into()), false, false));
+        assert!(res.is_ok());
+
+        let res = run(Run::new(Some("example".into()), true, false));
+        assert!(res.is_ok());
+
+        clean("cpp")?;
+        Ok(())
+    }
+
+    #[test]
+    #[should_panic]
+    fn no_manager_test() {
+        prepare_run_test("").unwrap();
+
+        let res = run(Run::new(None, false, false));
+        assert!(res.is_ok());
     }
 }
