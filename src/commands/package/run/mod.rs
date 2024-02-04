@@ -115,31 +115,42 @@ mod tests {
     use std::env;
     use tempdir::TempDir;
 
-    fn prepare() -> anyhow::Result<TempDir> {
-        let temp_dir = TempDir::new("ciri_tmp")?;
+    #[test]
+    fn run_rust_test() -> anyhow::Result<()> {
+        let tmp = TempDir::new_in(".", "ciri_tmp")?;
+        cmd!("cp", "-r", "example_projects/rust/.", tmp.path()).run()?;
+        env::set_current_dir(tmp.path())?;
 
-        cmd!("cp", "-r", "example_projects/.", temp_dir.path()).run()?;
-        env::set_current_dir(&temp_dir)?;
-        Ok(temp_dir)
+        let res = run(Run::new(None, false, false));
+        println!("{res:#?}");
+        assert!(res.is_ok());
+
+        Ok(())
     }
 
     #[test]
-    fn run_test() -> anyhow::Result<()> {
-        let tmp = prepare()?;
-        let tmp_str = tmp.path().to_str().unwrap_or_default();
+    fn run_node_test() -> anyhow::Result<()> {
+        let tmp = TempDir::new_in(".", "ciri_tmp")?;
+        cmd!("cp", "-r", "example_projects/node/.", tmp.path()).run()?;
+        env::set_current_dir(tmp.path())?;
 
-        let args = Run::new(None, true, false);
-
-        env::set_current_dir(format!("{}/rust", &tmp_str))?;
-        assert!(run(args.clone()).is_ok());
-
-        env::set_current_dir(format!("{}/node", &tmp_str))?;
-        assert!(run(args.clone()).is_ok());
-
-        env::set_current_dir(format!("{}/cpp", &tmp_str))?;
-        let res = run(args.clone());
-        println!("{:#?}", res);
+        let res = run(Run::new(None, false, false));
+        println!("{res:#?}");
+        println!("{:#?}", env::current_dir());
         assert!(res.is_ok());
+
+        Ok(())
+    }
+
+    #[test]
+    fn run_cpp_test() -> anyhow::Result<()> {
+        let tmp = TempDir::new_in(".", "ciri_tmp")?;
+        cmd!("cp", "-r", "example_projects/cpp/.", tmp.path()).run()?;
+        env::set_current_dir(tmp.path())?;
+
+        let res = run(Run::new(None, true, false));
+        println!("{res:#?}");
+        assert!(res.is_err());
 
         Ok(())
     }

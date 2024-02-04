@@ -111,7 +111,7 @@ pub const BUN_MANAGER: Manager = Manager {
 
 pub const GPP_MANAGER: Manager = Manager {
     agent: "g++",
-    build: Some("mkdir -p build && cmake -B build && make -C build"),
+    build: Some("cmake -Bbuild && make -Cbuild"),
     doc: None,
     clean: Some("rm -r build/"),
     run: Some("./build/"),
