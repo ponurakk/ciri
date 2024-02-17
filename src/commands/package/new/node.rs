@@ -78,7 +78,7 @@ pub fn get_values(args: New) -> miette::Result<ManifestQuestions> {
 /// Creates new node project
 ///
 /// Returns true if typescript project was created
-pub fn new(args: New) -> miette::Result<bool> {
+pub fn new(args: New) -> miette::Result<(bool, String)> {
     // Package shell complete
     // let pkg = Command::new("all-the-package-names")
     //     .output()
@@ -120,17 +120,17 @@ pub fn new(args: New) -> miette::Result<bool> {
     let config = Config::new(Some(values.name.clone()));
     config.save(Some(&values.name))?;
 
-    Ok(entry.ends_with(".ts"))
+    Ok((entry.ends_with(".ts"), values.name))
 }
 
 pub fn new_bun(args: New) -> miette::Result<()> {
-    new(args)?;
+    let (is_ts, directory) = new(args)?;
 
-    // FIX: this needs to be created in subdirectory
-    File::create("tsconfig.json")
-        .into_diagnostic()?
-        .write_all(
-            br#"{
+    if is_ts {
+        File::create(format!("{}/tsconfig.json", directory))
+            .into_diagnostic()?
+            .write_all(
+                br#"{
   "compilerOptions": {
     "lib": ["ESNext"],
     "module": "esnext",
@@ -152,8 +152,9 @@ pub fn new_bun(args: New) -> miette::Result<()> {
     ]
   }
 }"#,
-        )
-        .into_diagnostic()?;
+            )
+            .into_diagnostic()?;
+    }
 
     Ok(())
 }
