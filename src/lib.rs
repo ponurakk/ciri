@@ -71,7 +71,7 @@ pub struct System {
     pub subcommands: Option<SystemSubCommands>,
 }
 
-#[derive(Debug, Clone, ValueEnum)]
+#[derive(Debug, Clone, ValueEnum, PartialEq, Eq)]
 pub enum PackageManagers {
     Bun,
     Cargo,

@@ -1,5 +1,9 @@
 use std::collections::HashMap;
+use std::fs::File;
+use std::io::Read;
+use std::path::PathBuf;
 
+use miette::IntoDiagnostic;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
@@ -40,6 +44,18 @@ impl PackageJson {
             author,
             license,
         }
+    }
+}
+
+impl TryFrom<PathBuf> for PackageJson {
+    type Error = miette::Error;
+
+    fn try_from(value: PathBuf) -> Result<Self, Self::Error> {
+        let mut file: File = File::open(value).into_diagnostic()?;
+        let mut data: String = String::new();
+        file.read_to_string(&mut data).into_diagnostic()?;
+        let json: Self = serde_json::from_str(&data).into_diagnostic()?;
+        Ok(json)
     }
 }
 

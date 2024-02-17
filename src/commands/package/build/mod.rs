@@ -36,10 +36,14 @@ fn build_one(lang: &str, args: Build) -> miette::Result<()> {
 }
 
 pub fn build_from_manager(args: Build, pkg: Manager) -> miette::Result<()> {
-    if let Some(name) = args.name {
-        let p = pkg.build.unwrap();
-        let p = p.to_tuple()?;
-        cmd!(p.0, p.1, name).run().into_diagnostic()?;
+    if let Some(_) = args.name {
+        bail!("Invalid argument \"name\"");
+        // if let Some(p) = pkg.build {
+        //     let p = p.to_tuple()?;
+        //     cmd!(p.0, p.1, name).run().into_diagnostic()?;
+        // } else {
+        //     run_from_script(pkg, name.to_str().unwrap_or_default())?;
+        // }
     } else {
         if let Some(build) = pkg.build {
             let p = build.to_tuple()?;
@@ -120,7 +124,7 @@ mod tests {
         assert!(res.is_ok());
 
         let res = build(Build::new(Some("example".into()), None, false));
-        assert!(res.is_ok());
+        assert!(res.is_err());
 
         clean("rust")?;
         Ok(())
@@ -150,7 +154,7 @@ mod tests {
         assert!(res.is_ok());
 
         let res = build(Build::new(Some("example".into()), None, false));
-        assert!(res.is_ok());
+        assert!(res.is_err());
 
         clean("cpp")?;
         Ok(())

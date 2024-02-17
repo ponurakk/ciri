@@ -1,9 +1,11 @@
 use std::cmp::Ordering;
 use std::env;
+// use std::path::PathBuf;
 use std::str::FromStr;
 
 use ciri::args::package::{Build, Run};
 use ciri::entities::managers::Manager;
+// use ciri::entities::manifest::PackageJson;
 use ciri::validators::detect_language;
 use ciri::{PackageManagers, Util};
 use clap::builder::OsStr;
@@ -69,6 +71,17 @@ fn run_from_manager(args: Run, pkg: Manager) -> miette::Result<()> {
 
     Ok(())
 }
+
+// fn run_from_script(pkg: Manager, name: &str) -> miette::Result<()> {
+//     if vec!["npm", "yarn", "pnpm", "bun"].contains(&pkg.agent) {
+//         let package_json = PackageJson::try_from(PathBuf::from("package.json"))?;
+//         let script = package_json.scripts.get(name);
+//         if let Some(script) = script {
+//             info!("{script:#?}");
+//         }
+//     }
+//     Ok(())
+// }
 
 fn run_from_binary(args: Run, pkg: Manager) -> miette::Result<()> {
     if let Some(name) = args.name {
@@ -150,7 +163,7 @@ mod tests {
         assert!(res.is_ok());
 
         let res = run(Run::new(Some("example".into()), true, false));
-        assert!(res.is_ok());
+        assert!(res.is_err());
 
         clean("rust")?;
         Ok(())
@@ -165,6 +178,12 @@ mod tests {
         assert!(res.is_ok());
 
         let res = run(Run::new(None, true, false));
+        assert!(res.is_err());
+
+        let res = run(Run::new(Some("build".into()), false, false));
+        assert!(res.is_ok());
+
+        let res = run(Run::new(Some("build".into()), true, false));
         assert!(res.is_err());
 
         clean("node")?;
