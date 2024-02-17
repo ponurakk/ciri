@@ -1,4 +1,5 @@
 use ciri::args::package::New;
+use ciri::Config;
 use duct::cmd;
 use miette::IntoDiagnostic;
 
@@ -13,9 +14,12 @@ pub fn new(args: New) -> miette::Result<()> {
 
     let _type = prompt_type()?;
 
-    cmd!("cargo", "new", name, format!("--{}", _type))
+    cmd!("cargo", "new", name.clone(), format!("--{}", _type))
         .run()
         .into_diagnostic()?;
+
+    let config = Config::new(Some(name.clone()));
+    config.save(Some(&name))?;
 
     Ok(())
 }

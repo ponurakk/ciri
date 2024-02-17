@@ -7,11 +7,11 @@ use ciri::args::package::{Build, Run};
 use ciri::entities::managers::Manager;
 // use ciri::entities::manifest::PackageJson;
 use ciri::validators::detect_language;
-use ciri::{PackageManagers, Util};
+use ciri::{Config, PackageManagers, Util};
 use clap::builder::OsStr;
 use duct::cmd;
 use inquire::Select;
-use miette::{bail, IntoDiagnostic};
+use miette::{bail, Context, IntoDiagnostic};
 
 use super::build::{build_from_binary, build_from_manager};
 
@@ -91,6 +91,9 @@ fn run_from_binary(args: Run, pkg: Manager) -> miette::Result<()> {
             .into_diagnostic()?;
     } else {
         if let Some(default_exec) = pkg.default_exec {
+            let mut config = Config::new(None);
+            config.read()?;
+
             let current_dir = env::current_dir().into_diagnostic()?;
             let str = OsStr::from("");
             let current_dir = current_dir
@@ -99,9 +102,17 @@ fn run_from_binary(args: Run, pkg: Manager) -> miette::Result<()> {
                 .to_str()
                 .unwrap_or("");
 
-            cmd!(format!("{}{}", default_exec, current_dir))
-                .run()
-                .into_diagnostic()?;
+            cmd!(format!(
+                "{}{}",
+                default_exec,
+                config.bin_name.unwrap_or(current_dir.to_owned())
+            ))
+            .run()
+            .into_diagnostic()
+            .wrap_err(
+                "Check if project was build successfully or update/set bin_name in \".ciri.toml\"",
+            )
+            .wrap_err("Executable wasn't found.")?;
         } else {
             bail!("Run script or executable file not found");
         }

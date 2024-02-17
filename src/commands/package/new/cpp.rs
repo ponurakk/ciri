@@ -2,6 +2,7 @@ use std::fs::{self, File};
 use std::io::Write;
 
 use ciri::args::package::New;
+use ciri::Config;
 use duct::cmd;
 use miette::IntoDiagnostic;
 
@@ -31,6 +32,8 @@ pub fn new(args: New) -> miette::Result<()> {
 fn create_structure(name: &str, folder: &str) -> miette::Result<()> {
     fs::create_dir_all(format!("{}/{}", name, folder)).into_diagnostic()?;
     fs::create_dir(format!("{}/include", name)).into_diagnostic()?;
+    let config = Config::new(Some(name.to_owned()));
+    config.save(Some(name))?;
     Ok(())
 }
 

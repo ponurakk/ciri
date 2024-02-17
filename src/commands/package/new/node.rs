@@ -3,6 +3,7 @@ use std::io::Write;
 
 use ciri::args::package::New;
 use ciri::entities::manifest::PackageJson;
+use ciri::Config;
 use inquire::{Select, Text};
 use miette::IntoDiagnostic;
 
@@ -115,6 +116,9 @@ pub fn new(args: New) -> miette::Result<bool> {
         .into_diagnostic()?
         .write_all(b"console.log(\"Hello, World!\");")
         .into_diagnostic()?;
+
+    let config = Config::new(Some(values.name.clone()));
+    config.save(Some(&values.name))?;
 
     Ok(entry.ends_with(".ts"))
 }

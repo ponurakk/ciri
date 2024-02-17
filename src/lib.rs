@@ -9,11 +9,15 @@ pub mod validators;
 
 use std::collections::HashMap;
 use std::fmt::Display;
+use std::fs::File;
+use std::io::{Read, Write};
+use std::path::Path;
 use std::str::FromStr;
 
 use clap::{Args, ColorChoice, Parser, Subcommand, ValueEnum};
 use lazy_static::lazy_static;
 use miette::{bail, IntoDiagnostic};
+use serde::{Deserialize, Serialize};
 
 use self::args::package::{Add, Build, New, Remove, Run, Test, Update};
 use self::args::SystemSubCommands;
@@ -467,3 +471,53 @@ impl std::fmt::Display for Error {
 }
 
 impl std::error::Error for Error {}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Config {
+    pub bin_name: Option<String>,
+}
+
+impl Config {
+    pub fn new(bin_name: Option<String>) -> Self {
+        Self { bin_name }
+    }
+
+    pub fn save(&self, path: Option<&str>) -> miette::Result<()> {
+        let path_str = format!("{}/.ciri.toml", path.unwrap_or("."));
+        let path = Path::new(&path_str);
+        if !path.exists() {
+            let to_save = toml::to_string_pretty(&self).into_diagnostic()?;
+            File::create(path)
+                .into_diagnostic()?
+                .write_all(to_save.as_bytes())
+                .into_diagnostic()?;
+        }
+        Ok(())
+    }
+
+    pub fn update(&self) -> miette::Result<()> {
+        let to_save = toml::to_string_pretty(&self).into_diagnostic()?;
+        File::create(".ciri.toml")
+            .into_diagnostic()?
+            .write_all(to_save.as_bytes())
+            .into_diagnostic()?;
+        Ok(())
+    }
+
+    pub fn read(&mut self) -> miette::Result<()> {
+        let mut file: File = File::open(".ciri.toml").into_diagnostic()?;
+        let mut data: String = String::new();
+        file.read_to_string(&mut data).into_diagnostic()?;
+        let json: Self = toml::from_str(&data).into_diagnostic()?;
+        self.bin_name = json.bin_name;
+        Ok(())
+    }
+
+    // pub fn set_bin_name(&mut self, str: Option<String>) -> miette::Result<()> {
+    //     self.read()?;
+    //     self.bin_name = str;
+    //     self.update()?;
+
+    //     Ok(())
+    // }
+}
