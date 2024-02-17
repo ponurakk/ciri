@@ -51,6 +51,7 @@ fn run_one(lang: &str, args: Run) -> miette::Result<()> {
     }
 }
 
+// TODO: Typescript files only work with bun right now because it has native support
 fn run_from_manager(args: Run, pkg: Manager) -> miette::Result<()> {
     if let Some(name) = args.name {
         let p = pkg.run.unwrap();
@@ -91,8 +92,7 @@ fn run_from_binary(args: Run, pkg: Manager) -> miette::Result<()> {
             .into_diagnostic()?;
     } else {
         if let Some(default_exec) = pkg.default_exec {
-            let mut config = Config::new(None);
-            config.read()?;
+            let config = Config::read()?;
 
             let current_dir = env::current_dir().into_diagnostic()?;
             let str = OsStr::from("");
@@ -122,9 +122,15 @@ fn run_from_binary(args: Run, pkg: Manager) -> miette::Result<()> {
 }
 
 fn run_multiple(langs: Vec<String>, args: Run) -> miette::Result<()> {
-    let manager = Select::new("What package manager would you use?", langs)
-        .prompt()
-        .into_diagnostic()?;
+    let config = Config::read()?;
+    let manager = if let Some(manager) = config.prefered_project_manager {
+        manager
+    } else {
+        Select::new("What package manager would you use?", langs)
+            .prompt()
+            .into_diagnostic()?
+    };
+
     run_one(manager.as_str(), args)
 }
 

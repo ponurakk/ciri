@@ -26,20 +26,16 @@ impl PackageJson {
         main: String,
         author: String,
         license: String,
-        pkg: String,
     ) -> Self {
         Self {
             name,
             version,
             description,
             main,
-            scripts: HashMap::from([
-                (
-                    "test".to_owned(),
-                    "echo \"Error: no test specified\" && exit 1".to_owned(),
-                ),
-                ("preinstall".to_owned(), format!("npx only-allow {}", pkg)),
-            ]),
+            scripts: HashMap::from([(
+                "test".to_owned(),
+                "echo \"Error: no test specified\" && exit 1".to_owned(),
+            )]),
             keywords: vec![],
             author,
             license,
@@ -71,7 +67,6 @@ mod tests {
         let pkg_main = String::from("index.js");
         let pkg_author = String::from("John Doe");
         let pkg_license = String::from("MIT");
-        let pkg_name_for_test = String::from("test-package");
 
         let package_json = PackageJson::new(
             pkg_name.clone(),
@@ -80,7 +75,6 @@ mod tests {
             pkg_main.clone(),
             pkg_author.clone(),
             pkg_license.clone(),
-            pkg_name_for_test.clone(),
         );
 
         assert_eq!(package_json.name, pkg_name);
@@ -90,10 +84,6 @@ mod tests {
         assert_eq!(
             package_json.scripts.get("test").unwrap(),
             &"echo \"Error: no test specified\" && exit 1".to_owned()
-        );
-        assert_eq!(
-            package_json.scripts.get("preinstall").unwrap(),
-            &format!("npx only-allow {}", pkg_name_for_test)
         );
         assert_eq!(package_json.keywords, Vec::<String>::new());
         assert_eq!(package_json.author, pkg_author);

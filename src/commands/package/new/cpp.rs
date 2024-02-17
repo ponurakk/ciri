@@ -32,7 +32,7 @@ pub fn new(args: New) -> miette::Result<()> {
 fn create_structure(name: &str, folder: &str) -> miette::Result<()> {
     fs::create_dir_all(format!("{}/{}", name, folder)).into_diagnostic()?;
     fs::create_dir(format!("{}/include", name)).into_diagnostic()?;
-    let config = Config::new(Some(name.to_owned()));
+    let config = Config::new(Some(name.to_owned()), None);
     config.save(Some(name))?;
     Ok(())
 }

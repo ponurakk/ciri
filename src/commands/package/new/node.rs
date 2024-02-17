@@ -102,7 +102,6 @@ pub fn new(args: New) -> miette::Result<(bool, String)> {
         values.entry,
         values.author,
         values.license,
-        manager,
     );
     let package_json_str = serde_json::to_string_pretty(&package_json).into_diagnostic()?;
 
@@ -117,7 +116,7 @@ pub fn new(args: New) -> miette::Result<(bool, String)> {
         .write_all(b"console.log(\"Hello, World!\");")
         .into_diagnostic()?;
 
-    let config = Config::new(Some(values.name.clone()));
+    let config = Config::new(Some(values.name.clone()), Some(manager));
     config.save(Some(&values.name))?;
 
     Ok((entry.ends_with(".ts"), values.name))

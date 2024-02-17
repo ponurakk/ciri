@@ -18,7 +18,7 @@ pub fn new(args: New) -> miette::Result<()> {
         .run()
         .into_diagnostic()?;
 
-    let config = Config::new(Some(name.clone()));
+    let config = Config::new(Some(name.clone()), None);
     config.save(Some(&name))?;
 
     Ok(())

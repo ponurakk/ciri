@@ -475,11 +475,15 @@ impl std::error::Error for Error {}
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Config {
     pub bin_name: Option<String>,
+    pub prefered_project_manager: Option<String>,
 }
 
 impl Config {
-    pub fn new(bin_name: Option<String>) -> Self {
-        Self { bin_name }
+    pub fn new(bin_name: Option<String>, prefered_project_manager: Option<String>) -> Self {
+        Self {
+            bin_name,
+            prefered_project_manager,
+        }
     }
 
     pub fn save(&self, path: Option<&str>) -> miette::Result<()> {
@@ -504,20 +508,14 @@ impl Config {
         Ok(())
     }
 
-    pub fn read(&mut self) -> miette::Result<()> {
+    pub fn read() -> miette::Result<Self> {
         let mut file: File = File::open(".ciri.toml").into_diagnostic()?;
         let mut data: String = String::new();
         file.read_to_string(&mut data).into_diagnostic()?;
         let json: Self = toml::from_str(&data).into_diagnostic()?;
-        self.bin_name = json.bin_name;
-        Ok(())
+        Ok(Self {
+            bin_name: json.bin_name,
+            prefered_project_manager: json.prefered_project_manager,
+        })
     }
-
-    // pub fn set_bin_name(&mut self, str: Option<String>) -> miette::Result<()> {
-    //     self.read()?;
-    //     self.bin_name = str;
-    //     self.update()?;
-
-    //     Ok(())
-    // }
 }
