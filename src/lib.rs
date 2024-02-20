@@ -19,7 +19,7 @@ use lazy_static::lazy_static;
 use miette::{bail, IntoDiagnostic};
 use serde::{Deserialize, Serialize};
 
-use self::args::package::{Add, Build, New, Remove, Run, Test, Update};
+use self::args::package::{Add, Build, Clean, New, Remove, Run, Test, Update};
 use self::args::SystemSubCommands;
 use self::entities::managers::*;
 
@@ -67,6 +67,10 @@ pub enum SubCommands {
     /// Updates dependencies or just one
     #[clap(visible_alias = "up")]
     Update(Update),
+
+    /// Cleans build files/directories
+    #[clap(visible_alias = "c")]
+    Clean(Clean),
 }
 
 #[derive(Args)]

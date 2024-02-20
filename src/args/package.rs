@@ -89,3 +89,6 @@ pub struct Update {
     /// Name of package to update
     pub name: Option<String>,
 }
+
+#[derive(Args, Debug, Clone)]
+pub struct Clean {}

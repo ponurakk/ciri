@@ -98,7 +98,7 @@ pub struct Package {
     pub description: String,
     pub architecture: String,
     pub url: Option<String>,
-    pub licenses: Vec<String>,
+    pub licenses: Vec<String>, // TODO: Can be optional
     pub groups: Option<String>,
     pub provides: Option<String>,
     pub depends_on: Option<String>,

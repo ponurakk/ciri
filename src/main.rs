@@ -76,6 +76,7 @@ fn main() -> miette::Result<()> {
             ciri::SubCommands::New(args) => package::new(args)?,
             ciri::SubCommands::Run(args) => package::run(args)?,
             ciri::SubCommands::Build(args) => package::build(args)?,
+            ciri::SubCommands::Clean(_) => package::clean()?,
 
             _ => todo!(),
         }
